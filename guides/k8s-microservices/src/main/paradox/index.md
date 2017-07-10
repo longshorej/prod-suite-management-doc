@@ -83,22 +83,50 @@ eval $(minikube docker-env)
 
 #### Deploy Cassandra
 
-To deploy Cassandra to Kubernetes, we need to create the requisite resources which 
+To deploy Cassandra to Kubernetes, we need to create the requisite resources which
 we've placed in `deploy/k8s/minikube/cassandra`.
 
 ```bash
 kubectl create -f deploy/k8s/minikube/cassandra
-
-# TODO some command that waits until cassandra has started
-
-# TODO some command that shows cassandra is working
 ```
+
+Next we shall wait until the Cassandra is started. Execute the following command obtain the Cassandra's pod state.
+
+```bash
+kubectl get pods --selector=app=cassandra
+```
+
+Once the `STATUS` is `Running`, Cassandra has been started successfully.
+
+```
+NAME          READY     STATUS    RESTARTS   AGE
+cassandra-0   1/1       Running   1          3d
+```
+
+Once started, we can verify if Cassandra if functioning correctly.
+
+```bash
+kubectl exec cassandra-0 -- nodetool status
+```
+
+If running, the output similar to the following will be displayed.
+
+```
+
+Datacenter: DC1-K8Demo
+======================
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+--  Address     Load       Tokens       Owns (effective)  Host ID                               Rack
+UN  172.17.0.2  99.45 KiB  32           100.0%            5bd7c326-22ce-4b6b-97cf-f1278e847a77  Rack1-K8Demo
+```
+
 
 #### Build Chirper Docker images
 
-Applications must be packaged as Docker images to be deployed to Kubernetes. We'll build all of Chirper's images as 
-Docker images that are published to the Minikube's local repository -- 
-thanks to the `eval $(minikube docker-env)` statement covered above! 
+Applications must be packaged as Docker images to be deployed to Kubernetes. We'll build all of Chirper's images as
+Docker images that are published to the Minikube's local repository --
+thanks to the `eval $(minikube docker-env)` statement covered above!
 
 ```bash
 mvn clean package docker:build
